@@ -39,6 +39,32 @@ src/
   evaluate.py          Matrices de confusion + rapport PDF
 ```
 
+## Prérequis : un serveur MySQL
+
+L'API se connecte à un serveur MySQL sur `localhost:3306`. Deux options :
+
+### Option A — MySQL via Docker (recommandée, rien à installer sur la machine)
+
+```bash
+# Démarrer un serveur MySQL 8.0 dans un conteneur
+docker run --name socialmetrics-mysql \
+  -e MYSQL_ROOT_PASSWORD=changeme \
+  -p 3306:3306 -d mysql:8.0
+
+# Vérifier qu'il est prêt (doit afficher « mysqld is alive »)
+docker exec socialmetrics-mysql mysqladmin ping -uroot -pchangeme
+```
+
+Le fichier `.env` doit alors contenir `DB_USER=root` et `DB_PASSWORD=changeme`.
+
+### Option B — MySQL installé localement
+
+Installer MySQL (winget, MySQL Installer, XAMPP…) puis adapter `DB_USER` /
+`DB_PASSWORD` dans `.env` selon votre configuration.
+
+> Le client en ligne de commande `mysql` n'est **pas** nécessaire : l'accès se
+> fait uniquement via `mysql-connector-python`.
+
 ## Installation
 
 ```bash
@@ -51,14 +77,33 @@ cp .env.example .env   # puis renseigner les identifiants MySQL
 ## Mise en route
 
 ```bash
+# 0. Démarrer MySQL (voir « Prérequis » ci-dessus)
+
 # 1. Créer la base MySQL, la table `tweets` et insérer les données d'amorçage
 python scripts/setup_database.py
 
 # 2. Entraîner les deux modèles
 python src/train.py
 
-# 3. Lancer l'API
+# 3. Lancer l'API (à laisser tourner dans un terminal dédié)
 python src/app.py
+```
+
+L'API est alors disponible sur `http://localhost:5000`.
+
+## Commandes utiles
+
+```bash
+# Relancer l'API plus tard
+source .venv/Scripts/activate && python src/app.py
+
+# Générer le rapport d'évaluation (PNG + PDF dans reports/)
+python src/evaluate.py
+
+# Gérer le conteneur MySQL (données conservées entre les redémarrages)
+docker stop socialmetrics-mysql     # arrêter
+docker start socialmetrics-mysql    # redémarrer
+docker rm -f socialmetrics-mysql    # supprimer complètement
 ```
 
 ## Utilisation de l'API
