@@ -88,14 +88,14 @@ Retourne `{"status": "ok"}` pour la supervision.
 
 ### Gestion des erreurs
 
-| Cas                                   | Code HTTP |
-| ------------------------------------- | --------- |
-| Corps JSON absent                     | 400       |
-| Champ `tweets` manquant               | 400       |
-| `tweets` n'est pas une liste          | 400       |
-| Liste vide                            | 400       |
-| Élément non textuel                   | 400       |
-| Modèles non entraînés                 | 503       |
+| Cas                          | Code HTTP |
+| ---------------------------- | --------- |
+| Corps JSON absent            | 400       |
+| Champ `tweets` manquant      | 400       |
+| `tweets` n'est pas une liste | 400       |
+| Liste vide                   | 400       |
+| Élément non textuel          | 400       |
+| Modèles non entraînés        | 503       |
 
 ## Réentraînement automatisé
 
@@ -118,12 +118,12 @@ Génère les deux matrices de confusion (`reports/confusion_positive.png`,
 
 Table `tweets` :
 
-| Colonne  | Type         | Description                        |
-| -------- | ------------ | ---------------------------------- |
-| id       | INT (PK)     | Identifiant unique                 |
-| text     | VARCHAR(512) | Contenu du tweet                   |
-| positive | TINYINT(1)   | 1 si positif, 0 sinon              |
-| negative | TINYINT(1)   | 1 si négatif, 0 sinon              |
+| Colonne  | Type         | Description           |
+| -------- | ------------ | --------------------- |
+| id       | INT (PK)     | Identifiant unique    |
+| text     | VARCHAR(512) | Contenu du tweet      |
+| positive | TINYINT(1)   | 1 si positif, 0 sinon |
+| negative | TINYINT(1)   | 1 si négatif, 0 sinon |
 
 Toutes les requêtes utilisent des **paramètres liés** (`%s`) pour prévenir les
 injections SQL.
