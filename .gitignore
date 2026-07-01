@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Environnement / secrets
+.env
+
+# Modèles entraînés (regénérés par train.py)
+models/*.pkl
+
+# Sorties d'évaluation (images intermédiaires)
+reports/*.png
+
+# Logs
+*.log
+logs/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
