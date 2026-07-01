@@ -61,16 +61,46 @@ def _evaluate_model(name, y_train, y_test, X_train, X_test, png_name):
     return report, png_path
 
 
+OBSERVATIONS = (
+    "Les deux modèles s'appuient sur un corpus d'amorçage réduit (50 tweets), "
+    "ce qui limite la robustesse des estimations. Les matrices de confusion "
+    "montrent un rappel plus faible sur la classe minoritaire (tweets "
+    "explicitement positifs ou négatifs) : le modèle a tendance à classer les "
+    "tweets dans la classe majoritaire (0), d'où des faux négatifs. Ce biais "
+    "s'explique par le déséquilibre des classes et la faible taille du jeu de "
+    "données. La vectorisation Bag-of-Words ignore par ailleurs la négation "
+    "(« pas bien ») et le contexte, source d'erreurs sur les tournures "
+    "ironiques ou nuancées."
+)
+
+RECOMMANDATIONS = (
+    "1. Augmenter la taille et la diversité du corpus annoté (plusieurs "
+    "milliers de tweets) pour réduire la variance.\n"
+    "2. Rééquilibrer les classes (sur-échantillonnage, class_weight) et "
+    "surveiller le F1-score plutôt que l'exactitude.\n"
+    "3. Remplacer le Bag-of-Words par des n-grammes ou du TF-IDF, voire des "
+    "embeddings (word2vec, FastText) pour capturer le contexte et la "
+    "négation.\n"
+    "4. Ajuster les hyperparamètres (régularisation C) par validation croisée.\n"
+    "5. Mettre en place le réentraînement périodique (scripts/retrain.py) sur "
+    "les données fraîches collectées via l'API."
+)
+
+
 def _build_pdf(pos_report, pos_png, neg_report, neg_png) -> Path:
     """Assemble un PDF récapitulatif à partir des rapports et des images."""
     from fpdf import FPDF
+    from fpdf.enums import XPos, YPos
 
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
     pdf.add_page()
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, "Rapport d'évaluation - Analyse de sentiments", ln=True)
+    pdf.cell(
+        0, 10, "Rapport d'évaluation - Analyse de sentiments",
+        new_x=XPos.LMARGIN, new_y=YPos.NEXT,
+    )
     pdf.set_font("Helvetica", "", 11)
     pdf.multi_cell(
         0,
@@ -86,11 +116,22 @@ def _build_pdf(pos_report, pos_png, neg_report, neg_png) -> Path:
     ):
         pdf.ln(4)
         pdf.set_font("Helvetica", "B", 13)
-        pdf.cell(0, 8, title, ln=True)
+        pdf.cell(0, 8, title, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.set_font("Courier", "", 9)
-        for line in report.splitlines():
-            pdf.cell(0, 5, line, ln=True)
+        # multi_cell rend l'ensemble du rapport multi-lignes en un seul appel
+        # (évite une boucle imbriquée pour parcourir chaque ligne).
+        pdf.multi_cell(0, 5, report)
         pdf.image(str(png), w=90)
+
+    for heading, body in (
+        ("Observations : erreurs fréquentes et biais", OBSERVATIONS),
+        ("Recommandations pour améliorer le modèle", RECOMMANDATIONS),
+    ):
+        pdf.ln(4)
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 8, heading, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.multi_cell(0, 6, body)
 
     out = REPORTS_DIR / "rapport_evaluation.pdf"
     pdf.output(str(out))
