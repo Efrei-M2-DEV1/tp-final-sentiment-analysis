@@ -1,0 +1,22 @@
+# Planification du réentraînement hebdomadaire des modèles
+# =========================================================
+#
+# --- Linux / macOS (cron) --------------------------------------------------
+# Éditez la crontab de l'utilisateur :  crontab -e
+# puis ajoutez la ligne suivante (réentraînement chaque lundi à 3h00) :
+#
+#   0 3 * * 1 cd /chemin/vers/tp-final && /usr/bin/python3 scripts/retrain.py
+#
+# Vérifiez la planification avec :  crontab -l
+#
+# --- Windows (Planificateur de tâches) -------------------------------------
+# Créez une tâche planifiée hebdomadaire via PowerShell (à adapter) :
+#
+#   $action  = New-ScheduledTaskAction -Execute "python" `
+#                 -Argument "scripts\retrain.py" `
+#                 -WorkingDirectory "C:\chemin\vers\tp-final"
+#   $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 3am
+#   Register-ScheduledTask -TaskName "RetrainSentiment" `
+#                 -Action $action -Trigger $trigger
+#
+# Les journaux d'exécution sont écrits dans logs/retrain.log.
